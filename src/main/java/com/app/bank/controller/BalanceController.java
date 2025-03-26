@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class BalanceController {
 
-    @GetMapping("/alance")
+    @GetMapping("/balance")
     public String getBalanceDetail() {
         return "Balance Information from DB";
     }

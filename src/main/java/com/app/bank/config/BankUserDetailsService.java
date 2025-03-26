@@ -19,14 +19,14 @@ public class BankUserDetailsService implements UserDetailsService  {
     private final CustomerRepository customerRepository;
 
     /**
-     * @param username the username identifying the user whose data is required.
+     * @param email the email identifying the user whose data is required.
      * @return
      * @throws UsernameNotFoundException
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(
-                () -> new UsernameNotFoundException("User details not found for the user: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Customer customer = customerRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User details not found for the user: " + email));
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole()));
 

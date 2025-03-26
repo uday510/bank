@@ -12,4 +12,5 @@ public class AccountController {
     public String getAccountDetails() {
         return "Account Information Fetch from Database.";
     }
+
 }
