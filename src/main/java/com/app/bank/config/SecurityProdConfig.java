@@ -1,5 +1,6 @@
 package com.app.bank.config;
 
+import com.app.bank.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -27,7 +28,7 @@ public class SecurityProdConfig {
                 "api/myCards", "api/myLoans").authenticated()
                 .requestMatchers("api/notices", "api/contact", "/error", "/api/users/register").permitAll());
         http.formLogin(withDefaults());
-        http.httpBasic(withDefaults());
+        http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         return http.build();
     }
 

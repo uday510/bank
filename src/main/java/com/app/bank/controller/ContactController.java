@@ -12,4 +12,5 @@ public class ContactController {
     public String saveContactInquiryDetails() {
         return "Inquiry details are saved to the DB";
     }
+
 }
