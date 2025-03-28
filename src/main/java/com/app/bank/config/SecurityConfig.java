@@ -36,6 +36,8 @@ public class SecurityConfig {
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
+        http.logout(logout -> logout.logoutSuccessUrl("/api/logout").invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID"));
         return http.build();
     }
 
