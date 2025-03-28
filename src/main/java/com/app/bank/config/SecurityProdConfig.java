@@ -22,11 +22,14 @@ public class SecurityProdConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .requiresChannel(rcc -> rcc.anyRequest().requiresSecure())
+                .sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession")
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true))
+                        .requiresChannel(rcc -> rcc.anyRequest().requiresSecure())
                 .csrf(AbstractHttpConfigurer::disable).
                 authorizeHttpRequests(
-                        requests -> requests.requestMatchers("/", "api/account", "api/myBalance",
-                "api/myCards", "api/myLoans").authenticated()
+                        requests -> requests.requestMatchers("/", "api/account", "api/balance",
+                "api/cards", "api/loans").authenticated()
                 .requestMatchers("api/notices", "api/contact", "/error", "/api/users/register").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));

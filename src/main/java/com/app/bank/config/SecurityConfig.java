@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,23 +23,21 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
+                .sessionManagement(
+                        smc -> smc.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::changeSessionId)
+                        .invalidSessionUrl("/invalidSession")
+                        .maximumSessions(4)
+                        .maxSessionsPreventsLogin(true))                .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
                 .csrf(AbstractHttpConfigurer::disable).
                 authorizeHttpRequests(
-                        requests -> requests.requestMatchers("/", "api/account", "api/myBalance",
-                "api/myCards", "api/myLoans").authenticated()
+                        requests -> requests.requestMatchers("/", "api/account", "api/balance",
+                "api/cards", "api/loans").authenticated()
                 .requestMatchers("api/notices", "api/contact", "/error", "/api/users/register").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-//        http.exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return http.build();
     }
-
-/*    @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource) {
-        return new JdbcUserDetailsManager(dataSource);
-    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder() {
