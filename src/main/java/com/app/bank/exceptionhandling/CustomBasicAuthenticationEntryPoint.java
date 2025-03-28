@@ -11,6 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,9 +30,11 @@ public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryP
         response.setHeader("bank-error-reason", "Authentication failed");
 
         Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", Instant.now().toString());
         errorDetails.put("error", "Authentication failed");
         errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
-        errorDetails.put("message", authException.getMessage());
+        errorDetails.put("message", authException != null && authException.getMessage() != null ? authException.getMessage() : "Unauthorized");
+        errorDetails.put("path", request.getRequestURI());
 
         response.getWriter().write(objectMapper.writeValueAsString(errorDetails));
         response.getWriter().flush();

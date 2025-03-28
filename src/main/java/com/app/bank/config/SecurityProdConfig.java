@@ -1,5 +1,6 @@
 package com.app.bank.config;
 
+import com.app.bank.exceptionhandling.CustomAccessDeniedHandler;
 import com.app.bank.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,8 @@ public class SecurityProdConfig {
                 .requestMatchers("api/notices", "api/contact", "/error", "/api/users/register").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+//        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()).accessDeniedPage("/delete"));
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return http.build();
     }
 
