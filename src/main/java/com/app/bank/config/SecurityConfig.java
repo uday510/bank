@@ -1,7 +1,7 @@
 package com.app.bank.config;
 
-import com.app.bank.exceptionhandling.CustomAccessDeniedHandler;
-import com.app.bank.exceptionhandling.CustomBasicAuthenticationEntryPoint;
+import com.app.bank.exception.CustomAccessDeniedHandler;
+import com.app.bank.exception.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

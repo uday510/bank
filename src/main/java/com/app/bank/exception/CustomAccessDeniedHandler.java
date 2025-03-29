@@ -1,4 +1,4 @@
-package com.app.bank.exceptionhandling;
+package com.app.bank.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

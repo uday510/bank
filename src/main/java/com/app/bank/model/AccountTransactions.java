@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity
 @Getter @Setter
 @Table(name = "account_transactions")
-public class AccountTransaction {
+public class AccountTransactions {
 
     @Id
     @Column(name = "transaction_id", nullable = false)

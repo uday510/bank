@@ -1,13 +1,13 @@
 package com.app.bank.repository;
 
-import com.app.bank.model.Loan;
+import com.app.bank.model.Loans;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface LoanRepository extends CrudRepository<Loan, Long> {
+public interface LoanRepository extends CrudRepository<Loans, Long> {
 
-    List<Loan> findByCustomerIdOrderByStartDateDesc(Long customerId);
+    List<Loans> findByCustomerIdOrderByStartDateDesc(Long customerId);
 }
