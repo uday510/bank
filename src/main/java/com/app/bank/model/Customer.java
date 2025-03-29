@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name="customer")
@@ -33,5 +34,8 @@ public class Customer {
     @Column(name = "created_at")
     @JsonIgnore
     private Date createdAt;
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
+    private Set<Authority> authorities;
 
 }
