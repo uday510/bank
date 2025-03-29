@@ -53,7 +53,8 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .sessionManagement(
-                        smc -> smc.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::changeSessionId)
+                        smc ->
+                                smc.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::changeSessionId)
                                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                                 .invalidSessionUrl("/invalidSession")
                                 .maximumSessions(4)
@@ -61,11 +62,13 @@ public class SecurityConfig {
                 .securityContext(contextConfig -> contextConfig.requireExplicitSave(false))
                 .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
                 .authorizeHttpRequests(
-                        requests -> requests.requestMatchers("/", "api/account", "api/myAccount/**",
-                                        "api/balance", "api/myBalance",
-                                        "api/cards", "api/myCards",
-                                        "api/loans/**", "api/myLoans/**", "api/users").authenticated()
-                                .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register").permitAll());
+                        requests -> requests
+                                .requestMatchers("/", "api/account/**", "api/myAccount/**").hasAuthority("VIEWACCOUNT")
+                                .requestMatchers( "api/balance", "api/myBalance").hasAuthority("VIEWBALANCE")
+                                .requestMatchers("api/cards/**", "api/myCards/**").hasAuthority("VIEWCARDS")
+                                .requestMatchers( "api/loans/**", "api/myLoans/**").hasAnyAuthority("VIEWLOANS", "VIEWACCOUNT")
+                                .requestMatchers( "api/users").authenticated()
+                                .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register", "/favicon.ico").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));

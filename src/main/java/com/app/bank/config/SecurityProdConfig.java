@@ -37,7 +37,7 @@ public class SecurityProdConfig {
                             @Override
                             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                                 CorsConfiguration configuration = new CorsConfiguration();
-                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                                configuration.setAllowedOrigins(Collections.singletonList("https://localhost:4200"));
                                 configuration.setAllowedMethods(Collections.singletonList("*"));
                                 configuration.setAllowCredentials(true);
                                 configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -55,9 +55,13 @@ public class SecurityProdConfig {
                         .maxSessionsPreventsLogin(true))
                         .requiresChannel(rcc -> rcc.anyRequest().requiresSecure())
                 .authorizeHttpRequests(
-                        requests -> requests.requestMatchers("/", "api/account", "api/balance",
-                "api/cards", "api/loans").authenticated()
-                .requestMatchers("api/notices", "api/contact", "/error", "/api/users/register").permitAll());
+                        requests -> requests
+                                .requestMatchers("/", "api/account/**", "api/myAccount/**").hasAuthority("VIEWACCOUNT")
+                                .requestMatchers( "api/balance", "api/myBalance").hasAuthority("VIEWBALANCE")
+                                .requestMatchers("api/cards", "api/myCards").hasAuthority("VIEWCARDS")
+                                .requestMatchers( "api/loans/**", "api/myLoans/**").hasAnyAuthority("VIEWLOANS", "VIEWACCOUNT")
+                                .requestMatchers( "api/users").authenticated()
+                                .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register", "/favicon.ico").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
 //        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()).accessDeniedPage("/delete"));

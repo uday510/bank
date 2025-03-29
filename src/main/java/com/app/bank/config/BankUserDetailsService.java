@@ -29,7 +29,11 @@ public class BankUserDetailsService implements UserDetailsService  {
         Customer customer = customerRepository.findByEmail(email).orElseThrow(
                 () -> new UsernameNotFoundException("User details not found for the user: " + email));
 
-        List<GrantedAuthority> authorities = customer.getAuthorities().stream().map(authority ->  new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+        List<GrantedAuthority> authorities = customer
+                .getAuthorities()
+                .stream()
+                .map(authority ->  new SimpleGrantedAuthority(authority.getName()))
+                .collect(Collectors.toList());
 
         return new User(customer.getEmail(), customer.getPassword(), authorities);
     }

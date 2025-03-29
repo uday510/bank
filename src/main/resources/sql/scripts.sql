@@ -172,7 +172,7 @@ CREATE TABLE `authorities` (
 );
 
 INSERT INTO `authorities` (`customer_id`, `name`)
-VALUES (1, 'VIEWACCOUNT');
+VALUES (2, 'VIEWACCOUNT');
 
 INSERT INTO `authorities` (`customer_id`, `name`)
 VALUES (1, 'VIEWCARDS');
@@ -194,3 +194,7 @@ VALUES (1, 'ROLE_ADMIN');
 
 
 SELECT * FROM `authorities`;
+
+SELECT * FROM `loans`;
+
+SELECT * FROM `cards`;
