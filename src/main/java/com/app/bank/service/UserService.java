@@ -40,6 +40,10 @@ public class UserService {
     }
 
     private void saveCustomerWithEncodedPassword(Customer customer) {
+        Optional<Customer> existingCustomer = customerRepository.findByEmail(customer.getEmail());
+        if (existingCustomer.isPresent()) {
+            throw new RuntimeException("Email is already in use");
+        }
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         customer.setCreatedAt(DateTimeUtils.getUTCDate());
         customerRepository.save(customer);
