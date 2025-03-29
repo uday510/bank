@@ -2,18 +2,22 @@ package com.app.bank.config;
 
 import com.app.bank.exception.CustomAccessDeniedHandler;
 import com.app.bank.exception.CustomBasicAuthenticationEntryPoint;
+import com.app.bank.filter.CsrfCookieFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -24,6 +28,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @Profile("!prod")
 public class SecurityConfig {
+
+    CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -42,18 +48,23 @@ public class SecurityConfig {
                         return configuration;
                     }
                 }))
+                .csrf(csrfConfig -> csrfConfig.csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
+                        .ignoringRequestMatchers("api/contact", "api/notices", "api/notices/cache")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .sessionManagement(
                         smc -> smc.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::changeSessionId)
+                                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                                 .invalidSessionUrl("/invalidSession")
                                 .maximumSessions(4)
-                                .maxSessionsPreventsLogin(true))                .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
-                .csrf(AbstractHttpConfigurer::disable).
-                authorizeHttpRequests(
-                        requests -> requests.requestMatchers("/", "api/account", "api/myAccount",
+                                .maxSessionsPreventsLogin(true))
+                .securityContext(contextConfig -> contextConfig.requireExplicitSave(false))
+                .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
+                .authorizeHttpRequests(
+                        requests -> requests.requestMatchers("/", "api/account", "api/myAccount/**",
                                         "api/balance", "api/myBalance",
                                         "api/cards", "api/myCards",
-                                        "api/loans/**", "api/myLoans/**", "api/users/"
-                                ).authenticated()
+                                        "api/loans/**", "api/myLoans/**", "api/users").authenticated()
                                 .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
