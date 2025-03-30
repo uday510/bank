@@ -2,6 +2,7 @@ package com.app.bank.config;
 
 import com.app.bank.exception.CustomAccessDeniedHandler;
 import com.app.bank.exception.CustomBasicAuthenticationEntryPoint;
+import com.app.bank.filter.AuthoritiesLoggingAfterFilter;
 import com.app.bank.filter.CsrfCookieFilter;
 import com.app.bank.filter.RequestValidationFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,6 +55,7 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
                 .sessionManagement(
                         smc ->
                                 smc.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::changeSessionId)
