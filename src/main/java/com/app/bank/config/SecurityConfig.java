@@ -9,10 +9,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -52,7 +55,7 @@ public class SecurityConfig {
                     }
                 }))
                 .csrf(csrfConfig -> csrfConfig.csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
-                        .ignoringRequestMatchers("api/contact", "api/notices", "api/notices/cache")
+                        .ignoringRequestMatchers("api/contact", "api/notices", "api/notices/cache", "/api/users/login")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new JWTTokenGenerationFilter(), BasicAuthenticationFilter.class)
@@ -79,7 +82,7 @@ public class SecurityConfig {
                                 .requestMatchers("api/cards/**", "api/myCards/**").hasAuthority("ADMIN")
                                 .requestMatchers( "api/loans/**", "api/myLoans/**").hasAnyAuthority("VIEWLOANS", "VIEWACCOUNT")
                                 .requestMatchers( "api/users").authenticated()
-                                .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register", "/favicon.ico").permitAll());
+                                .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register", "/api/users/login", "/favicon.ico").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
@@ -97,5 +100,15 @@ public class SecurityConfig {
     @Bean
     public CompromisedPasswordChecker compromisedPasswordChecker() {
         return new HaveIBeenPwnedRestApiPasswordChecker();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+
+        BankUserNamePasswordAuthenticationProvider authenticationProvider = new BankUserNamePasswordAuthenticationProvider(userDetailsService);
+
+        ProviderManager providerManager = new ProviderManager(authenticationProvider);
+        providerManager.setEraseCredentialsAfterAuthentication(false);
+        return providerManager;
     }
 }

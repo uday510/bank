@@ -1,22 +1,19 @@
 package com.app.bank.filter;
 
 import com.app.bank.constants.ApplicationConstants;
-import com.app.bank.util.EnvConfig;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import com.app.bank.security.JwtUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class JWTTokenValidationFilter extends OncePerRequestFilter {
 
@@ -34,31 +31,17 @@ public class JWTTokenValidationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(7);
 
         try {
-            String secret = EnvConfig.get("JWT_SECRET");
-            SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+            Claims claims = JwtUtil.validateToken(jwt);
+            Authentication authentication = JwtUtil.getAuthentication(claims);
 
-            Claims claims = Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(jwt)
-                    .getPayload();
-
-            String username = claims.getSubject();
-            String authorities = claims.get("authorities", String.class);
-
-            if (username != null && authorities != null) {
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
+            if (authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ExpiredJwtException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token has expired");
             return;
-        } catch (MalformedJwtException | SignatureException e) {
+        } catch (JwtException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
-            return;
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
             return;
         }
 
@@ -66,7 +49,7 @@ public class JWTTokenValidationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getServletPath().equals("/api/users");
     }
 }
