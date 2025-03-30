@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 @SpringBootApplication
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 /*@EnableJpaRepositories("com.app.bank.repository")
 @EntityScan("com.app.bank.model")*/
 public class BankApplication {
