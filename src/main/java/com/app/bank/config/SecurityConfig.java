@@ -3,6 +3,7 @@ package com.app.bank.config;
 import com.app.bank.exception.CustomAccessDeniedHandler;
 import com.app.bank.exception.CustomBasicAuthenticationEntryPoint;
 import com.app.bank.filter.CsrfCookieFilter;
+import com.app.bank.filter.RequestValidationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +53,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("api/contact", "api/notices", "api/notices/cache")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
                 .sessionManagement(
                         smc ->
                                 smc.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::changeSessionId)
@@ -63,9 +65,13 @@ public class SecurityConfig {
                 .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
                 .authorizeHttpRequests(
                         requests -> requests
-                                .requestMatchers("/", "api/account/**", "api/myAccount/**").hasAuthority("VIEWACCOUNT")
-                                .requestMatchers( "api/balance", "api/myBalance").hasAuthority("VIEWBALANCE")
-                                .requestMatchers("api/cards/**", "api/myCards/**").hasAuthority("VIEWCARDS")
+//                                .requestMatchers("/", "api/account/**", "api/myAccount/**").hasAuthority("VIEWACCOUNT")
+//                                .requestMatchers( "api/balance", "api/myBalance").hasAuthority("VIEWBALANCE")
+//                                .requestMatchers("api/cards/**", "api/myCards/**").hasAuthority("VIEWCARDS")
+//                                .requestMatchers( "api/loans/**", "api/myLoans/**").hasAnyAuthority("VIEWLOANS", "VIEWACCOUNT")
+                                .requestMatchers("/", "api/account/**", "api/myAccount/**").hasRole("USER")
+                                .requestMatchers( "api/balance", "api/myBalance").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("api/cards/**", "api/myCards/**").hasAuthority("ADMIN")
                                 .requestMatchers( "api/loans/**", "api/myLoans/**").hasAnyAuthority("VIEWLOANS", "VIEWACCOUNT")
                                 .requestMatchers( "api/users").authenticated()
                                 .requestMatchers("api/notices","api/notices/cache", "api/contact", "/error", "/api/users/register", "/favicon.ico").permitAll());

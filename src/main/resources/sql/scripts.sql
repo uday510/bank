@@ -192,7 +192,6 @@ INSERT INTO `authorities` (`customer_id`, `name`)
 VALUES (1, 'ROLE_ADMIN');
 
 
-
 SELECT * FROM `authorities`;
 
 SELECT * FROM `loans`;
