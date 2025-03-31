@@ -3,10 +3,7 @@ package com.app.bank.controller;
 import com.app.bank.model.Contact;
 import com.app.bank.service.ContactService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,7 +12,7 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    @GetMapping("/contact")
+    @PostMapping("/contact")
     public Contact saveContactInquiryDetails(@RequestBody Contact contact) {
        return contactService.saveContactDetails(contact);
     }

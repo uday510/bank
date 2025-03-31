@@ -1,6 +1,7 @@
 package com.app.bank.filter;
 
 import com.app.bank.constants.ApplicationConstants;
+import com.app.bank.security.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,8 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
-import static com.app.bank.security.JwtUtil.generateToken;
 
 public class JWTTokenGenerationFilter extends OncePerRequestFilter {
 
@@ -26,7 +25,7 @@ public class JWTTokenGenerationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwt = generateToken(authentication);
+        String jwt = JwtUtil.generateToken(authentication);
         response.setHeader(ApplicationConstants.Authorization, "Bearer " + jwt);
         filterChain.doFilter(request, response);
     }
