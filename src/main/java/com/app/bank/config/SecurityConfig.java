@@ -60,8 +60,6 @@ public class SecurityConfig {
         return providerManager;
     }
 }
-
-
 //    CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
 //    @Bean
 //    SecurityFilterChain securityFilterChain(HttpSecurity http, Environment environment) throws Exception {

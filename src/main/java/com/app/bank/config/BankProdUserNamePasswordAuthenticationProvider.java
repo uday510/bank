@@ -23,14 +23,13 @@ public class BankProdUserNamePasswordAuthenticationProvider implements Authentic
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
        String username = authentication.getName();
        String password = authentication.getCredentials().toString();
-       UserDetails userDetails =  userDetailsService.loadUserByUsername(username);
+       UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
        if (!passwordEncoder.matches(password, userDetails.getPassword()))
            throw new AuthenticationException("Invalid credentials") {};
 
        return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
     }
-
 
     @Override
     public boolean supports(Class<?> authentication) {
